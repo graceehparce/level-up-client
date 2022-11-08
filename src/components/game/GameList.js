@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import { getGames } from "../../managers/GameManager.js"
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 export const GameList = (props) => {
     const [games, setGames] = useState([])
@@ -10,6 +10,31 @@ export const GameList = (props) => {
     useEffect(() => {
         getGames().then(data => setGames(data))
     }, [])
+
+    const deleteGame = (gameId) => {
+        return fetch(
+            `http://localhost:8000/games/${gameId}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Authorization": `Token ${localStorage.getItem("lu_token")}`
+                },
+            }
+        ).then(() => {
+            fetch(`http://localhost:8000/games`, {
+                headers: {
+                    "Authorization": `Token ${localStorage.getItem("lu_token")}`
+                }
+            })
+                .then(response => response.json())
+                .then((gamesArray) => {
+                    setGames(gamesArray)
+                })
+
+        })
+    }
 
     return (
         <article className="games">
@@ -28,6 +53,10 @@ export const GameList = (props) => {
                             onClick={() => {
                                 navigate({ pathname: `/games/${game.id}` })
                             }}>Edit Game</button>
+                        <button className="delete__game"
+                            onClick={() => {
+                                deleteGame(game.id)
+                            }}>Delete</button>
                     </section>
                 })
             }

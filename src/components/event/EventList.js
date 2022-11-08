@@ -1,17 +1,25 @@
 import React, { useEffect } from "react"
-import { getEvents } from "../../managers/EventManager.js"
+import { getEvents, leaveEvent, joinEvent } from "../../managers/EventManager.js"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 
 
-export const EventList = (props) => {
+export const EventList = () => {
     const [events, setEvents] = useState([])
     const navigate = useNavigate()
 
     useEffect(() => {
         getEvents().then(data => setEvents(data))
     }, [])
+
+    const LeaveButton = (eventId) => {
+        leaveEvent(eventId).then(data => setEvents(data))
+    }
+
+    const JoinButton = (eventId) => {
+        joinEvent(eventId).then(data => setEvents(data))
+    }
 
 
     const deleteEvent = (eventId) => {
@@ -62,6 +70,20 @@ export const EventList = (props) => {
                             onClick={() => {
                                 deleteEvent(event.id)
                             }}>Delete</button>
+
+                        {
+                            event.joined ?
+                                <button className="delete__event"
+                                    onClick={() => {
+                                        LeaveButton(event.id)
+                                    }}>Leave</button>
+                                :
+                                <button className="delete__event"
+                                    onClick={() => {
+                                        JoinButton(event.id)
+                                    }}>Join</button>
+                        }
+
                     </section>
                 })
             }
